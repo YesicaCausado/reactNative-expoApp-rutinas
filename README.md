@@ -1,1 +1,0 @@
-# reactNative-expoApp-rutinas
