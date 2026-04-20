@@ -63,15 +63,15 @@ export default function HistorialInteligente({ themeColor }) {
         <View style={styles.section}>
           <Text style={styles.subtitle}>Análisis de la Base de Datos ({stats.total} rutinas)</Text>
           <View style={styles.grid}>
-            <View style={styles.card}>
+            <View style={[styles.card, { borderColor: themeColor, borderWidth: 1 }]}>
               <Text style={[styles.bigNum, { color: themeColor }]}>{stats.completadas}</Text>
               <Text style={styles.cardLabel}>Completadas</Text>
             </View>
-            <View style={styles.card}>
+            <View style={[styles.card, { borderColor: themeColor, borderWidth: 1 }]}>
               <Text style={[styles.bigNum, { color: themeColor }]}>{stats.horasTotales}h</Text>
               <Text style={styles.cardLabel}>Tiempo Disp.</Text>
             </View>
-            <View style={styles.cardFull}>
+            <View style={[styles.cardFull, { borderColor: themeColor, borderWidth: 1 }]}>
               <Text style={styles.cardLabel}>Categoría más recurrente</Text>
               <Text style={[styles.bigNum, { fontSize: 20, color: themeColor }]}>🏆 {stats.topCategoria}</Text>
             </View>
