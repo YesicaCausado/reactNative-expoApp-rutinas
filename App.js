@@ -1,7 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useState } from 'react';
 import Inicio from './components/inicio'; 
-import CrearRutina from './components/CrearRutinas'; // Asegúrate de crear este archivo
+import CrearRutina from './components/CrearRutinas';
+import HistorialInteligente from './components/HistorialInteligente'; // Asegúrate de crear este archivo
 
 export default function App() {
   const [screen, setScreen] = useState('inicio');
@@ -34,7 +35,7 @@ export default function App() {
           />
         )}
         
-        {screen === 'historial' && <Text style={styles.placeholderText}>Tus Logros</Text>}
+        {screen === 'historial' && <HistorialInteligente themeColor={themeColor} />}
       </View>
 
       <View style={styles.navbar}>
