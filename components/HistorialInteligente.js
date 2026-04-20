@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 
-export default function HistorialInteligente({ themeColor }) {
+export default function HistorialInteligente({ themeColor, rutinasUsuario = [], agregarRutina }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('estadisticas'); // 'estadisticas' | 'sugerencias'
@@ -34,16 +34,39 @@ export default function HistorialInteligente({ themeColor }) {
     return <ActivityIndicator size="large" color={themeColor} style={{ marginTop: 50 }} />;
   }
 
-  // 1. FUNCIÓN ORIGINAL: Estadísticas calculadas sobre la API
+  // 1. FUNCIÓN ORIGINAL: Estadísticas reales combinadas (Mi horario)
+  const getActividadFrecuente = () => {
+    if (rutinasUsuario.length === 0) return 'Ninguna';
+    const conteo = {};
+    let mayor = ''; let max = 0;
+    rutinasUsuario.forEach(r => {
+      const nombre = r.nombre || 'Personalizada';
+      conteo[nombre] = (conteo[nombre] || 0) + 1;
+      if (conteo[nombre] > max) { max = conteo[nombre]; mayor = nombre; }
+    });
+    return mayor;
+  };
+
   const stats = {
-    total: data.length,
-    completadas: data.filter(d => d.completada).length,
-    horasTotales: (data.reduce((acc, curr) => acc + curr.duracion, 0) / 60).toFixed(1),
-    topCategoria: 'Estudiar'
+    total: rutinasUsuario.length,
+    completadas: rutinasUsuario.filter(r => r.completada).length,
+    horasTotales: (rutinasUsuario.reduce((acc, curr) => acc + (Number(curr.duracion) || 30), 0) / 60).toFixed(1),
+    topCategoria: getActividadFrecuente()
   };
 
   // 2. FUNCIÓN ORIGINAL: Filtro Avanzado / Sugerencia Inteligente
   const sugeridas = data.filter(d => d.objetivo === fObj && d.duracion <= fTiempo && d.nivelEstres <= fEstresMax);
+
+  const handleAgregarDesdeAPI = (item) => {
+    agregarRutina({
+      nombre: item.nombre,
+      objetivo: item.desc,
+      nivelEstres: item.nivelEstres,
+      duracion: item.duracion,
+      horario: 'Sugerida'
+    });
+    Alert.alert('✅ ¡Lista!', `Se añadió la actividad "${item.nombre}" a tu horario.`);
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -61,18 +84,18 @@ export default function HistorialInteligente({ themeColor }) {
 
       {tab === 'estadisticas' && (
         <View style={styles.section}>
-          <Text style={styles.subtitle}>Análisis de la Base de Datos ({stats.total} rutinas)</Text>
+          <Text style={styles.subtitle}>Mi estado y desempeño ({stats.total} rutinas programadas)</Text>
           <View style={styles.grid}>
             <View style={[styles.card, { borderColor: themeColor, borderWidth: 1 }]}>
               <Text style={[styles.bigNum, { color: themeColor }]}>{stats.completadas}</Text>
-              <Text style={styles.cardLabel}>Completadas</Text>
+              <Text style={styles.cardLabel}>Rutinas hechas</Text>
             </View>
             <View style={[styles.card, { borderColor: themeColor, borderWidth: 1 }]}>
               <Text style={[styles.bigNum, { color: themeColor }]}>{stats.horasTotales}h</Text>
-              <Text style={styles.cardLabel}>Tiempo Disp.</Text>
+              <Text style={styles.cardLabel}>Tiemp. programado</Text>
             </View>
             <View style={[styles.cardFull, { borderColor: themeColor, borderWidth: 1 }]}>
-              <Text style={styles.cardLabel}>Categoría más recurrente</Text>
+              <Text style={styles.cardLabel}>Actividad más frecuente de mi horario:</Text>
               <Text style={[styles.bigNum, { fontSize: 20, color: themeColor }]}>🏆 {stats.topCategoria}</Text>
             </View>
           </View>
@@ -124,10 +147,15 @@ export default function HistorialInteligente({ themeColor }) {
                     <Text style={{color: themeColor, fontWeight:'bold'}}>{item.duracion} min</Text>
                   </View>
                   <Text style={{color: '#666', marginTop: 5}}>{item.desc}</Text>
-                  <View style={[styles.badge, { backgroundColor: item.nivelEstres === 3 ? '#F44336' : '#FF9800' }]}>
-                    <Text style={{color:'#FFF', fontSize: 10, fontWeight: 'bold'}}>
-                      Estrés soportado: {item.nivelEstres === 1 ? 'Bajo' : item.nivelEstres === 2 ? 'Medio' : 'Alto'}
-                    </Text>
+                  <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10}}>
+                    <View style={[styles.badge, { backgroundColor: item.nivelEstres === 3 ? '#F44336' : '#FF9800' }]}>
+                      <Text style={{color:'#FFF', fontSize: 10, fontWeight: 'bold'}}>
+                        Estrés soportado: {item.nivelEstres === 1 ? 'Bajo' : item.nivelEstres === 2 ? 'Medio' : 'Alto'}
+                      </Text>
+                    </View>
+                    <TouchableOpacity style={{backgroundColor: themeColor, padding: 5, borderRadius: 5, paddingHorizontal: 10}} onPress={() => handleAgregarDesdeAPI(item)}>
+                      <Text style={{color: '#FFF', fontSize: 12, fontWeight: 'bold'}}>➕ Añadir</Text>
+                    </TouchableOpacity>
                   </View>
                </View>
             ))

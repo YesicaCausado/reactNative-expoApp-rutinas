@@ -25,6 +25,7 @@ export default function App() {
             setEstres={setEstres} 
             themeColor={themeColor} 
             rutinas={rutinas} 
+            agregarRutina={agregarRutina}
           />
         )}
 
@@ -35,7 +36,13 @@ export default function App() {
           />
         )}
         
-        {screen === 'historial' && <HistorialInteligente themeColor={themeColor} />}
+        {screen === 'historial' && (
+          <HistorialInteligente 
+            themeColor={themeColor} 
+            rutinasUsuario={rutinas} 
+            agregarRutina={agregarRutina} 
+          />
+        )}
       </View>
 
       <View style={styles.navbar}>
